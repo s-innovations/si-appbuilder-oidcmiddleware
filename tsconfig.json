@@ -1,0 +1,29 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "target": "ES5",
+    "module": "amd",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationDir": "dist/typings",
+    "outDir": "dist/src",
+    "moduleResolution": "node",
+    "paths": {
+      "si-appbuilder/*": [ "node_modules/si-appbuilder/dist/typings/*" ]
+    },
+    "baseUrl": ".",
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.promise"
+    ]
+  },
+  "include": ["src"],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules",
+    "tests"
+  ]
+}
