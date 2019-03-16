@@ -158,7 +158,7 @@ export async function OidcMiddleware<T extends OIDCAppContext>(ctx: T, next: App
     }
     Object.defineProperty(ctx, "userManager", { value: mgnr, enumerable: false });
 
-    if (window.location.hash.indexOf("#id_token") === 0 || window.location.search.indexOf("code")) {
+    if (window.location.hash.indexOf("#id_token") === 0 || window.location.search.indexOf("?code") === 0) {
 
         await mgnr.signinRedirectCallback();
         history.pushState("", document.title, window.location.pathname);
