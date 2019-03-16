@@ -22,8 +22,14 @@ export interface AppContextAuthorizationFailed {
     reason: string;
 }
 
+type Mutable<T> = {
+    -readonly [P in keyof T]: T[P]
+};
+
+ 
+
 export interface OIDCAppContext {
-    oidcOptions: Oidc.UserManagerSettings;
+    oidcOptions: Mutable< Oidc.UserManagerSettings>;
     userManager?: Oidc.UserManager;
     authorization?: AppContextAuthorizationSuccess | AppContextAuthorizationFailed;
 }
@@ -82,11 +88,11 @@ export async function OidcMiddleware<T extends OIDCAppContext>(ctx:T , next: App
     oidc.Log.logger = console;
 
     let config = Object.assign({}, {
-        authority: "https://local.earthml.com:8500/identity/",
-        client_id: "EarthML.Mapify",
+     //   authority: "",
+     //   client_id: "",
         redirect_uri: `${window.location.protocol}//${window.location.host}${window.location.pathname}`,//  "http://localhost:5003/callback.html",
         response_type: "id_token token",
-        scope: "openid profile api1",
+        scope: "openid profile",
         post_logout_redirect_uri: `${window.location.protocol}//${window.location.host}${window.location.pathname}`,
         silent_redirect_uri: `${window.location.protocol}//${window.location.host}${window.location.pathname}silent`,
         // Number of seconds before the token expires to trigger
@@ -98,7 +104,7 @@ export async function OidcMiddleware<T extends OIDCAppContext>(ctx:T , next: App
         // Number of seconds before the token expires to trigger
         // the `tokenExpiring` event
         checkSessionInterval: 60000,
-
+        loadUserInfo: true,
         // Do we want to filter OIDC protocal-specific claims from the response?
         filterProtocolClaims: true
     } as Oidc.UserManagerSettings, ctx.oidcOptions);
@@ -131,11 +137,7 @@ export async function OidcMiddleware<T extends OIDCAppContext>(ctx:T , next: App
     // When a user logs in successfully or a token is renewed, the `userLoaded`
     // event is fired. the `addUserLoaded` method allows to register a callback to
     // that event
-    
-    mgr.events.addUserLoaded((loadedUser) => {
 
-        console.log(["userLoaded", loadedUser]);
-    });
     // Same mechanism for when the automatic renewal of a token fails
     mgr.events.addSilentRenewError((error) => {
         console.error('error while renewing the access token', error);
@@ -149,7 +151,7 @@ export async function OidcMiddleware<T extends OIDCAppContext>(ctx:T , next: App
         mgr.removeUser().then(() => window.location.reload());
     });
 
-    if (window.location.hash.indexOf("#id_token") === 0) {
+    if (window.location.hash.indexOf("#id_token") === 0 || window.location.search.indexOf("code")) {
 
         await mgr.signinRedirectCallback();
         history.pushState("", document.title, window.location.pathname);
